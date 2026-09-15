@@ -19,10 +19,17 @@ sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generat
 # Modify hostname
 #sed -i 's/OpenWrt/P3TERX-Router/g' package/base-files/files/bin/config_generate
 
-# 移除 openwrt feeds 自带的核心库
+# 移除 openwrt feeds 自带的核心库并拉取最新 passwall 依赖
 rm -rf feeds/packages/net/{xray-core,v2ray-geodata,sing-box,chinadns-ng,dns2socks,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-libev,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,geoview,shadow-tls}
 git clone https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/passwall-packages
 
-# 移除 openwrt feeds 过时的luci版本
+# 移除 openwrt feeds 过时的luci版本并拉取最新 passwall luci
 rm -rf feeds/luci/applications/luci-app-passwall
 git clone https://github.com/Openwrt-Passwall/openwrt-passwall package/passwall-luci
+
+# 针对 Aigo AGS21 注入生成 raw bin (sysupgrade.bin) 的打包规则
+if [ -f "target/linux/mediatek/image/filogic.mk" ]; then
+    sed -i '/define Device\/aigo_ags21/,/endef/ {
+        /IMAGE\/sysupgrade.bin/! s/endef/\  IMAGE\/sysupgrade.bin := sysupgrade-tar | append-metadata\nendef/
+    }' target/linux/mediatek/image/filogic.mk
+fi
