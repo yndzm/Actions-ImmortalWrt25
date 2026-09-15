@@ -40,5 +40,3 @@ endef
 TARGET_DEVICES += aigo_ags21_rawbin
 EOF
 fi
-
-fi
