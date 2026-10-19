@@ -27,9 +27,33 @@ git clone https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/
 rm -rf feeds/luci/applications/luci-app-passwall
 git clone https://github.com/Openwrt-Passwall/openwrt-passwall package/passwall-luci
 
-# 针对 Aigo AGS21 注入标准 Raw Binary 镜像打包目标
+# 针对 Aigo AGS21 eMMC 生成传统 Raw Binary 格式固件（适配 bl-mt798x-dhcpd U-Boot）
 if grep -q "define Device/aigo_ags21" target/linux/mediatek/image/filogic.mk; then
+
 cat << 'EOF' >> target/linux/mediatek/image/filogic.mk
+
+define Device/aigo_ags21_rawbin
+  DEVICE_VENDOR := AIGO
+  DEVICE_MODEL := AGS21 (Raw Binary for MTK U-Boot)
+  DEVICE_DTS := mt7981b-aigo-ags21
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_DTC_FLAGS := --pad 4096
+  DEVICE_DTS_LOADADDR := 0x43f00000
+  DEVICE_PACKAGES := f2fsck mkf2fs
+  KERNEL_LOADADDR := 0x44000000
+  KERNEL := kernel-bin | gzip
+  KERNEL_INITRAMFS := kernel-bin | lzma | pad-to 64k
+  KERNEL_INITRAMFS_SUFFIX := -recovery.bin
+  IMAGES := sysupgrade.bin
+  IMAGE_SIZE := $$(shell expr 64 + $$(CONFIG_TARGET_ROOTFS_PARTSIZE))m
+  # 传统格式：kernel 放在 8MB 偏移处，后面接 rootfs
+  IMAGE/sysupgrade.bin := append-kernel | pad-to 0x800000 | append-rootfs | pad-rootfs | append-metadata
+endef
+
+TARGET_DEVICES += aigo_ags21_rawbin
+
+EOF
+fi
 
 define Device/aigo_ags21_rawbin
   $(Device/aigo_ags21)
