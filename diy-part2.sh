@@ -33,19 +33,13 @@ if grep -q "define Device/aigo_ags21" target/linux/mediatek/image/filogic.mk; th
 cat << 'EOF' >> target/linux/mediatek/image/filogic.mk
 
 define Device/aigo_ags21_rawbin
-  DEVICE_VENDOR := AIGO
+  $(Device/aigo_ags21)
   DEVICE_MODEL := AGS21 (Raw Binary for MTK U-Boot)
   DEVICE_DTS := mt7981b-aigo-ags21
-  DEVICE_DTS_DIR := ../dts
-  DEVICE_DTC_FLAGS := --pad 4096
-  DEVICE_DTS_LOADADDR := 0x43f00000
-  DEVICE_PACKAGES := f2fsck mkf2fs
-  KERNEL_LOADADDR := 0x44000000
   KERNEL := kernel-bin | gzip
   KERNEL_INITRAMFS := kernel-bin | lzma | pad-to 64k
   KERNEL_INITRAMFS_SUFFIX := -recovery.bin
   IMAGES := sysupgrade.bin
-  IMAGE_SIZE := $$(shell expr 64 + $$(CONFIG_TARGET_ROOTFS_PARTSIZE))m
   IMAGE/sysupgrade.bin := append-kernel | pad-to 0x800000 | append-rootfs | pad-rootfs | append-metadata
 endef
 
