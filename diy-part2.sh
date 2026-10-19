@@ -46,21 +46,10 @@ define Device/aigo_ags21_rawbin
   KERNEL_INITRAMFS_SUFFIX := -recovery.bin
   IMAGES := sysupgrade.bin
   IMAGE_SIZE := $$(shell expr 64 + $$(CONFIG_TARGET_ROOTFS_PARTSIZE))m
-  # 传统格式：kernel 放在 8MB 偏移处，后面接 rootfs
   IMAGE/sysupgrade.bin := append-kernel | pad-to 0x800000 | append-rootfs | pad-rootfs | append-metadata
 endef
 
 TARGET_DEVICES += aigo_ags21_rawbin
 
-EOF
-fi
-
-define Device/aigo_ags21_rawbin
-  $(Device/aigo_ags21)
-  DEVICE_NAME := aigo_ags21_rawbin
-  IMAGE/sysupgrade.bin := append-kernel | pad-to 128k | append-rootfs | pad-rootfs | append-metadata
-  IMAGE_TYPES += sysupgrade.bin
-endef
-TARGET_DEVICES += aigo_ags21_rawbin
 EOF
 fi
